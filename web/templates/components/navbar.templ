@@ -1,0 +1,29 @@
+package components
+
+templ NavbarComponent(profile map[string] interface{}) {
+    <div class="navbar bg-base-100">
+        <div class="flex-1">
+            <a class="btn btn-ghost text-xl">Atik</a>
+        </div>
+        <div class="flex-none gap-2">
+            if len(profile) > 0 {
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                        <div class="w-10 rounded-full">
+                            <img alt="Profile picture" src={profile["picture"].(string)}/>
+                        </div>
+                    </div>
+                    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rouned-bx w-52">
+                        <li>Profile</li>
+                        <li>Settings</li>
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+            } else {
+                <div>
+                    <a href="/login"><button class="btn btn-accent">Sing in</button></a>
+                </div>
+            }
+        </div>
+    </div>
+}
