@@ -1,0 +1,11 @@
+node_modules
+
+assets/css/styles.css
+
+atik
+
+*_templ.go
+
+.env
+
+.postgres-data
