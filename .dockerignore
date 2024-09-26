@@ -3,3 +3,5 @@ node_modules
 .gitignore
 
 README.md
+
+*_templ.go
