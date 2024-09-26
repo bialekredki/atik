@@ -1,0 +1,9 @@
+package icons
+
+import "fmt"
+
+templ GenericSvgIcon(size int, strokeWidth float32, class string) {
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke-width={ fmt.Sprintf("%.1f", strokeWidth) } stroke="currentColor" class={ class } view-box={ fmt.Sprintf("0 0 %d %d", size, size) }>
+        { children... }
+    </svg>
+}

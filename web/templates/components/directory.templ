@@ -1,0 +1,152 @@
+package components
+
+import "bialekredki/atik/web/templates/icons"
+import "bialekredki/atik/models"
+import "fmt"
+
+func uintOrNull(value *uint) string {
+    if value == nil {
+        return "nil"
+    }
+    return string(*value)
+}
+
+templ newDirectoryModal(parentDirectory *models.MetadataObject) {
+    <dialog id="new_directory_modal" class="modal">
+        <div class="modal-box">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">x</button>
+            </form>
+            <h3 class="font-bold text-lg">New directory</h3>
+            <form id="new-directory-modal-form" class="grid grid-cols-1 gap-y-1">
+                if parentDirectory != nil {
+                    <input
+                    type="hidden"
+                    name="parentId"
+                    value={fmt.Sprint(parentDirectory.ID)}
+                    />
+                }
+                <div>
+                    <div class="label">
+                        <span class="label-text">Name</span>
+                    </div>
+                    <input name="name" type="text" placeholder="New directory name" class="input input-bordered w-full max-w-xs" />
+                </div>
+                <div>
+                    <div class="label">
+                        <span class="label-text">Storage class</span>
+                    </div>
+                    <input
+                    name="isColdStorageClass"
+                    type="checkbox"
+                    class="toggle"
+                    checked="checked" /> 
+                </div>
+                <button 
+                    class="btn btn-primary"
+                    hx-post="/directory"
+                    hx-include="new-directory-modal-form"
+                    hx-target="#directory-body"
+                    hx-swap="beforeend"
+                    hx-on:click="closeModal('new_directory_modal')"
+                >
+                    Create
+                </button>
+            </form> 
+        </div>
+    </dialog>
+}
+
+templ ObjectTableRow(object models.MetadataObject) {
+    <tr class="hover">
+        if object.ObjectType == models.DirectoryObjectType {
+            <td>@icons.FolderMini()</td>
+        } else {
+            <td></td>
+        }
+        <td><a href={templ.URL(fmt.Sprintf("/directory/%d", object.ID))}>{object.Name}</a></td>
+        <td>{object.ObjectType.String()}</td>
+        if object.StorageClass == models.StorageType_Hot {
+            <td>@icons.FireMini()</td>
+        } else if object.StorageClass == models.StorageType_Cold {
+            <td>@icons.ArchiveMini()</td>
+        }
+    </tr>
+}
+
+templ ParentObjectTableRow(parentId uint) {
+    @ObjectTableRow(models.MetadataObject{
+        ID: parentId,
+        Name: "..",
+        ObjectType: models.DirectoryObjectType,
+    })
+}
+
+templ RootObjectTableRow() {
+   <tr class="hover">
+        <td>@icons.ArrowUpMini()</td>
+        <td><a href="/">..</a></td>
+        <td>{models.DirectoryObjectType.String()}</td>
+        <td></td>
+    </tr> 
+}
+
+templ fileUploader() {
+    <form id="upload-files-form">
+        <input type="file" class="file-input file-input-bordered w-full max-w-xs" multiple/>
+        <button 
+        class="button btn-primary"
+        hx-post="/files"
+        hx-include="upload-files-form"
+        >
+            Upload
+        </button>
+    </form>
+}
+
+
+templ DirectoryView(directory *models.MetadataObject, objects []models.MetadataObject, parentDirectories []*models.MetadataObject) {
+    <div class="overflow-x-auto">
+        @newDirectoryModal(directory)
+        <div>
+            <button class="btn btn-accent" onclick="openModal('new_directory_modal')">
+                New directory
+            </button>
+        </div>
+        if directory != nil {
+            <div class="breadcrumbs text-sm">
+                <ul>
+                    <li><a href={templ.URL("/")}>@icons.HomeMini()</a></li>
+                    for _, parent := range parentDirectories {
+                        <li><a href={templ.URL(fmt.Sprintf("/directory/%d", parent.ID))}>{parent.Name}</a></li>
+                    }
+                    <li>{directory.Name}</li>
+                </ul>
+            </div>
+        } else {
+            <h3>@icons.HomeMini()</h3>
+
+        }
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Storage class</th>
+                </tr>
+            </thead>
+            <tbody id="directory-body">
+                if directory != nil && directory.ParentId != nil {
+                    @ParentObjectTableRow(*directory.ParentId)
+                } else if directory != nil && directory.ParentId == nil {
+                    @RootObjectTableRow()
+                }
+                for _, object := range objects {
+                    @ObjectTableRow(object)
+                }
+            </tbody>
+        </table>
+        @fileUploader()
+    </div>
+}

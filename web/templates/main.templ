@@ -1,0 +1,13 @@
+package templates
+
+import "bialekredki/atik/web/templates/components"
+
+
+templ Main(profile map[string]interface{}) {
+	<html>
+		@components.HeaderComponent("Atik - Storage solutions")
+		<body>
+			@components.NavbarComponent(profile)			
+		</body>
+	</html>
+}

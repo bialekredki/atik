@@ -1,13 +1,21 @@
 package templates
 
 import "bialekredki/atik/web/templates/components"
+import "bialekredki/atik/models"
 
+type HomeTemplateParams struct {
+	Profile map[string]interface{}
+	Directory *models.MetadataObject
+	Objects []models.MetadataObject
+	DirectoryParents []*models.MetadataObject
+}
 
-templ Home(profile map[string]interface{}) {
+templ Home(p HomeTemplateParams) {
 	<html>
 		@components.HeaderComponent("Atik - Home")
 		<body>
-			@components.NavbarComponent(profile)			
+			@components.NavbarComponent(p.Profile)			
+			@components.DirectoryView(p.Directory, p.Objects, p.DirectoryParents)
 		</body>
 	</html>
 }

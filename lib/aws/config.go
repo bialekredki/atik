@@ -2,20 +2,19 @@ package aws
 
 import (
 	"context"
-	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"go.uber.org/zap"
 )
 
-var AwsConfig aws.Config
-
-func LoadConfig() *aws.Config {
-	loadedConfig, err := config.LoadDefaultConfig(context.TODO())
+func LoadConfig(logger *zap.Logger) (*aws.Config, error) {
+	loadedConfig, err := config.LoadDefaultConfig(context.Background())
+	logger.Sugar().Debugf("aws config %+v", loadedConfig)
 	if err != nil {
-		log.Fatalf("Failed to load AWS SDK config")
+		logger.Fatal("failed to load AWS config", zap.Error(err))
+		return nil, err
 	}
 
-	AwsConfig = loadedConfig
-	return &loadedConfig
+	return &loadedConfig, nil
 }
